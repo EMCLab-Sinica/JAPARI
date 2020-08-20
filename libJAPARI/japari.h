@@ -80,7 +80,7 @@ typedef struct{
 }JAP_TILE;
 
 #include "myuart.h"
-#include "pool.h"
+#include "fc.h"
 #include "convolution.h"
 #include "nonlinear.h"
 
