@@ -46,7 +46,7 @@ Below is an explanation of the directories/files found in this repo.
 
 `dsplib/` is a set of highly optimized functions produced by Texas Instruments to perform many common signal processing operations on fixed-point numbers for MSP430 microcontrollers. 
 
-`libJAPARI/` contains source code for basic neural network operations for JAPARI and customized LEA drivers.
+`libJAPARI/` contains source code for basic neural network operations for JAPARI and customized drivers for LEA.
 
 `main.c` contains an example to run a DNN inference.
 
