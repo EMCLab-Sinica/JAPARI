@@ -1,13 +1,13 @@
-# JAPARI : Job and progress alternate inference middleware
+# JAPARI : Job and Progress Alternate Inference Middleware
 
 <!-- ABOUT THE PROJECT -->
 ## Overview
 
 JAPARI is a middleware stack for doing inference on energy-harvesting intermittent systems. We implemented our JAPARI design on the Texas Instruments MSP430FR5994 LaunchPad, and used the internal low-energy accelerator (LEA) hardware for DNN inference acceleration. JAPARI consists of multiple inference functions, which are exposed via an intuitive API. Each inference function contains four major design components: 
-* the data mover.
-* the kernel generator. 
-* the channel generator.
-* the progress seeker.
+* Data mover.
+* Kernel generator. 
+* Channel generator.
+* Progress seeker.
 
 The data mover fetches/preserves the IFM/OFM and footprints. The kernel and channel generators append footprints kernels and channels onto the IFM tile and weight kernel tiles. Upon power resumption, the progress seeker searches for the latest footprint across all preserved footprints in the preservation buffer in NVM.
 
