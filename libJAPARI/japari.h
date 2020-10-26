@@ -1,3 +1,5 @@
+
+
 #ifndef JAPARILIB_JAPARI_H_
 #define JAPARILIB_JAPARI_H_
 
@@ -9,6 +11,8 @@
 #include "driverlib.h"
 #include "extfram.h"
 
+#define BA_SIZE 1
+
 #define SIZE_of_Q15 2
 #define Tr 4
 #define Tc 4
@@ -16,6 +20,9 @@
 #define Tm 8
 
 #define LEA_STACK 200
+
+
+//extern uint16_t FPPPP[3];
 
 extern uint16_t UART_FG;
 extern _q15 LEA_MEMORY[2048-LEA_STACK];
@@ -40,11 +47,12 @@ typedef struct{
 	uint8_t PG;
 }JAP_DATA;
 
-typedef struct HAWL{
+
+typedef struct JAPL{
 	void (*fun)();
 	JAP_DATA DATA_IN;
 	JAP_DATA DATA_OUT;
-	JAP_DATA PARA;
+	JAP_PARA PARA;
 	uint8_t  SIGN;
 	uint32_t BUFFER_Ptr;
 	uint32_t BATCH;
@@ -55,6 +63,31 @@ typedef struct{
 	volatile uint16_t FOOTPRINT;
 	uint16_t TOTAL_LAYERS;
 }JAP_NETWORK;
+
+typedef struct{
+	uint16_t r;
+	uint16_t c;
+	uint16_t m;
+	uint16_t n;
+	uint16_t op;
+	uint16_t flip;
+}JAP_INTRA_IDX;
+
+typedef struct{
+	uint16_t r;
+	uint16_t c;
+	uint16_t m;
+	uint16_t n;
+	uint16_t kr;
+	uint16_t kc;
+}JAP_INTER_IDX;
+
+typedef struct{
+	uint16_t tr;
+	uint16_t tc;
+	uint16_t tm;
+	uint16_t tn;
+}JAP_TILE_SIZE;
 
 typedef struct{
 	uint32_t PTR;
@@ -79,15 +112,20 @@ typedef struct{
 	uint16_t _r_offset;
 }JAP_TILE;
 
+//#include "conv.h"
 #include "myuart.h"
-#include "fc.h"
 #include "convolution.h"
-#include "nonlinear.h"
 
+
+void JAP_POOL(JAP_LAYER* LAYER);
+void HAW_POOL(JAP_LAYER* LAYER);
 uint32_t Aoffset2D(uint16_t V2,uint16_t V1,uint16_t D1);
 uint32_t Aoffset3D(uint16_t V3,uint16_t V2,uint16_t V1,uint16_t D2,uint16_t D1);
 uint32_t Aoffset4D(uint16_t V4,uint16_t V3,uint16_t V2,uint16_t V1,uint16_t D3,uint16_t D2,uint16_t D1);
 void JAP_INFERENCE(JAP_NETWORK *net);
+
+
+
 
 
 #endif /* JAPARILIB_JAPARI_H_ */
