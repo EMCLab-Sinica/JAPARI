@@ -7,7 +7,6 @@ void __mpypara_init(msp_matrix_mpy_q15_params* mpyParams, JAP_TILE_SIZE* ts, uin
 msp_status __JAP_matrix_mpy_q15(const msp_matrix_mpy_q15_params *params, const _q15 *srcA, const _q15 *srcB, _q15 *dst, uint32_t destNV , uint16_t len);
 void __JAP_ADD(const msp_add_q15_params *params, const _q15 *srcA, const _q15 *srcB, _q15 *dst ,uint32_t destNV);
 
-
 void __JAP_PG_RETRIEVE(JAP_LAYER* LAYER,  JAP_INTER_IDX* itr, JAP_INTRA_IDX* ita, JAP_TILE_SIZE* ts, int* l_cnt);
 
 void __JAP_PG_RETRIEVE(JAP_LAYER* LAYER,  JAP_INTER_IDX* itr, JAP_INTRA_IDX* ita, JAP_TILE_SIZE* ts, int* l_cnt){
@@ -22,22 +21,18 @@ void __JAP_PG_RETRIEVE(JAP_LAYER* LAYER,  JAP_INTER_IDX* itr, JAP_INTRA_IDX* ita
 	uint16_t MCH  = D_OUT->CH;
 	uint16_t NCH  = D_IN->CH;
 
-	uint32_t D_IN_Ptr   = D_IN->DATA_Ptr;
 	uint32_t D_OUT_Ptr  = D_OUT->DATA_Ptr;
-	uint32_t WEIGHT_Ptr = PARA->WEIGHT;
 	uint32_t PB         = LAYER->BUFFER_Ptr;
 
 	uint16_t batch = LAYER->BATCH;
 	uint16_t NFPs = 0; //uum_fp
-	uint16_t prog_oft = 0;
-	uint16_t trans=0;
+
 	uint16_t MCH_F =  MCH+(MCH + batch-1)/batch;
-	uint16_t mch_p = 0;
+
 	uint32_t b_offset = Aoffset3D( ROWS , COLS , MCH_F ,COLS, MCH_F)*sizeof(_q15);
 
 	_q15* srcA;
-	_q15* srcB;
-	uint32_t srcC32;
+
 
 	int pb_1,pb_L;
 	int LL_MARKER=0;
@@ -60,9 +55,9 @@ void __JAP_PG_RETRIEVE(JAP_LAYER* LAYER,  JAP_INTER_IDX* itr, JAP_INTRA_IDX* ita
 				for(itr->kr=0; itr->kr < KR ; itr->kr++ ){for(itr->kc=0; itr->kc < KC ; itr->kc++ ){
 					if(tmp == *l_cnt){
 						ts->tr = (itr->r+Tr > ROWS) ? (ROWS - itr->r) : Tr;
-						ts->tc = (itr->c+Tc > ROWS) ? (COLS - itr->c) : Tc;
-						ts->tm = (itr->m+Tm > ROWS) ? (MCH  - itr->m) : Tm;
-						ts->tn = (itr->n+Tn > ROWS) ? (NCH  - itr->n) : Tn;
+						ts->tc = (itr->c+Tc > COLS) ? (COLS - itr->c) : Tc;
+						ts->tm = (itr->m+Tm > MCH) ? (MCH  - itr->m) : Tm;
+						ts->tn = (itr->n+Tn > NCH) ? (NCH  - itr->n) : Tn;
 						NFPs = ( ts->tm + batch-1) / batch ;
 
 						srcA = LEA_MEMORY+lea_o_offset;
@@ -87,7 +82,7 @@ void __JAP_PG_RETRIEVE(JAP_LAYER* LAYER,  JAP_INTER_IDX* itr, JAP_INTRA_IDX* ita
 									ADDR.L += ((ts->tm + NFPs)*sizeof(_q15));
 								}
 							}
-							*ita = (JAP_INTRA_IDX ){.r=0, .c=0, .m=0, .n=0, .op=1, .flip=0};
+							*ita = (JAP_INTRA_IDX ){.r=0, .c=0, .m=0, .n=0, .op=1, .flip=ita->flip};
 							return;
 						}else{
 							ita->op = 1;
@@ -127,6 +122,7 @@ void __JAP_PG_RETRIEVE(JAP_LAYER* LAYER,  JAP_INTER_IDX* itr, JAP_INTRA_IDX* ita
 
 
 }
+
 msp_status __JAP_matrix_mpy_q15(const msp_matrix_mpy_q15_params *params, const _q15 *srcA, const _q15 *srcB, _q15 *dst, uint32_t destNV , uint16_t len)
 {
 	SPI_ADDR ADDR;
@@ -259,6 +255,7 @@ void __JAP_FETCH_INPUT_CONV(JAP_DATA *D_IN, _q15* DST , JAP_INTER_IDX* itr, JAP_
 }
 
 
+
 void __JAP_FETCH_WEIGHT(JAP_PARA *PARA , JAP_INTER_IDX* itr, JAP_INTRA_IDX* ita, JAP_TILE_SIZE* ts, uint16_t batch ,int dummy_w, int loop_cnt){
 	SPI_ADDR ADDR;
 	uint32_t W_Ptr= PARA->WEIGHT;
@@ -348,9 +345,9 @@ void JAP_CONV(JAP_LAYER* LAYER){
 	uint16_t MCH  = D_OUT->CH;
 	uint16_t NCH  = D_IN->CH;
 
-	uint32_t D_IN_Ptr   = D_IN->DATA_Ptr;
+
 	uint32_t D_OUT_Ptr  = D_OUT->DATA_Ptr;
-	uint32_t WEIGHT_Ptr = PARA->WEIGHT;
+
 	uint32_t PB         = LAYER->BUFFER_Ptr;
 
 	uint16_t batch = LAYER->BATCH;
@@ -358,14 +355,11 @@ void JAP_CONV(JAP_LAYER* LAYER){
 	uint16_t prog_oft = 0;
 	uint16_t trans=0;
 	uint16_t MCH_F =  MCH+(MCH + batch-1)/batch;
-	uint16_t mch_p = 0;
 	uint32_t b_offset = Aoffset3D( ROWS , COLS , MCH_F ,COLS, MCH_F)*sizeof(_q15);
 
 	int dummy_w =LAYER->SIGN ? 0x0001 : 0x0010;
 	int loop_cnt = 1;
-	int LL_MARKER=0;
-	int pb_1=1;
-	int pb_L=1;
+
 
 
 	msp_add_q15_params addParams;
@@ -389,9 +383,9 @@ void JAP_CONV(JAP_LAYER* LAYER){
 	for(; itr.r<ROWS ; itr.r+=Tr){for(; itr.c<COLS ; itr.c+=Tc){
 		for(; itr.m <MCH  ; itr.m +=Tm){for(;  itr.n <NCH  ; itr.n +=Tn){
 			ts.tr = (itr.r+Tr > ROWS) ? (ROWS - itr.r) : Tr;
-			ts.tc = (itr.c+Tc > ROWS) ? (COLS - itr.c) : Tc;
-			ts.tm = (itr.m+Tm > ROWS) ? (MCH  - itr.m) : Tm;
-			ts.tn = (itr.n+Tn > ROWS) ? (NCH  - itr.n) : Tn;
+			ts.tc = (itr.c+Tc > COLS) ? (COLS - itr.c) : Tc;
+			ts.tm = (itr.m+Tm > MCH) ? (MCH  - itr.m) : Tm;
+			ts.tn = (itr.n+Tn > NCH) ? (NCH  - itr.n) : Tn;
 
 			NFPs = ( ts.tm + batch-1) / batch ;
 			__mpypara_init(&mpyParams, &ts,batch);
@@ -447,8 +441,6 @@ void JAP_CONV(JAP_LAYER* LAYER){
 
 							}ita.c=0;//end loop sub_op_r
 						}ita.r=0;//end loop sub_op_r
-
-
 					}
 				}ita.op=0;loop_cnt++;ita.flip^=0x1;
 			}itr.kc;}itr.kr=0;
@@ -456,4 +448,5 @@ void JAP_CONV(JAP_LAYER* LAYER){
 	}itr.c=0;}itr.r=0;
 	LAYER->SIGN = LAYER->SIGN ? 0 : 1 ;
 }
+
 
