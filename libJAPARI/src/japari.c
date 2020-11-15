@@ -18,13 +18,17 @@ inline uint32_t Aoffset4D(uint16_t V4,uint16_t V3,uint16_t V2,uint16_t V1,uint16
 }
 
 void JAP_INFERENCE(JAP_NETWORK *net){
-
+	SPI_ADDR A;
 	int i;
 	for(i = net->FOOTPRINT ; i < net->TOTAL_LAYERS ; i++){
 		JAP_LAYER *LAYER = &(net->LAYERS[net->FOOTPRINT]);
 		JAP_LAYER *NEXT_LAYER = &net->LAYERS[(net->FOOTPRINT+1) % (net->TOTAL_LAYERS)];
 		LAYER->fun(LAYER);
 		net->FOOTPRINT++;
+#ifdef HAWAII
+		A.L = NEXT_LAYER->FOOTPRINT;
+		SPI_WERIT(&A,&reset,sizeof(uint32_t));
+#endif
 	}
 	net->FOOTPRINT=0;
 }
