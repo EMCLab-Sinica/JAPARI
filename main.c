@@ -24,6 +24,7 @@ JAP_LAYER SIG[1]={
 			.DATA_OUT  = (JAP_DATA){.DATA_Ptr=BUFF_L3,.W =13,.H=13,.CH=64,.PG=1,},
 			.PARA      = (JAP_PARA){.KERNEL_W=3,.KERNEL_H=3,  .CH_IN = 32, .CH_OUT=64, .WEIGHT = ConV_2, .BIAS = ConV_2_b},
 			.SIGN      = 0,
+			.FOOTPRINT = 10,
 			.BATCH     = BA_SIZE,
 			.BUFFER_Ptr= PBUFF_L3}
 };
