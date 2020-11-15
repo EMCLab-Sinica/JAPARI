@@ -7,9 +7,8 @@
 #include "japari.h"
 
 void JAP_CONV(JAP_LAYER* LAYER);
-void JAP_FC(JAP_LAYER* LAYER);
 void HAW_CONV(JAP_LAYER* LAYER);
-void HAW_FC(JAP_LAYER* LAYER);
+
 
 
 #endif /* JAPARILIB_JAP_IMP_H_ */
