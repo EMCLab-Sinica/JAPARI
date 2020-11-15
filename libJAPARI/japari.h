@@ -56,6 +56,7 @@ typedef struct JAPL{
 	uint8_t  SIGN;
 	uint32_t BUFFER_Ptr;
 	uint32_t BATCH;
+	uint32_t FOOTPRINT;
 }JAP_LAYER;
 
 typedef struct{
